@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Cardistry Effects</title>
+	<style>
+		body { margin: 0; padding: 0; font-size: 0; }
+		canvas { width: 100%; height: 100%; }
+	</style>
+	<script src="three.min.js"></script>
+	<script src="jquery.3.5.1.js"></script>
+</head>
+<body>
+  <script id='sceneJs' src='scene.js'> </script>
+  <script>
+	var WIDTH = window.innerWidth;
+	var HEIGHT = window.innerHeight;
+      
+    // Setup the renderer of the scene.
+    function setupRenderer() {
+        var renderer = new THREE.WebGLRenderer({antialias:true});
+        renderer.setSize(WIDTH, HEIGHT);
+        renderer.setClearColor(0xDDDDDD, 1);
+        document.body.appendChild(renderer.domElement);
+        return renderer;
+    }
+      
+    // Render the scene.  
+	function render() {
+		requestAnimationFrame(render);
+		renderer.render(scene, camera);
+	}
+
+	var scene = new THREE.Scene();
+
+    var renderer = setupRenderer();
+
+	var camera = new THREE.PerspectiveCamera(70, WIDTH/HEIGHT);
+	camera.position.z = 20;
+	scene.add(camera);
+      
+    var vertexShaderText;
+    var fragmentShaderText;
+        
+    $.ajax({
+    url:'vertex_shader.glsl',
+    success: function (vertex_shader_data){
+        vertexShaderText = vertex_shader_data;
+        $.ajax({
+            url:'fragment_shader.glsl',
+            success: function(fragment_shader_data) {
+                fragmentShaderText = fragment_shader_data;
+      
+                // Setup shader
+                var shaderMaterial = new THREE.ShaderMaterial( {
+                   vertexShader: vertexShaderText,
+                   fragmentShader: fragmentShaderText
+                });
+                var cube = setupScene('thumb_fan', scene, THREE, shaderMaterial);
+                render();
+            }
+        })
+    }
+    // ^^^^^^^^^ why is js so fucking stupid.
+    });
+  </script>
+</body>
+</html>
+
